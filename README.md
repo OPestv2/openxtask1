@@ -1,4 +1,4 @@
-# openxtask2
+# openxtask1
 
 ## Usage
 To start script use [main.py](main.py) file. Main.py contains methods used to prepare requests, 
@@ -19,7 +19,7 @@ You can change script's behavior in ```main.py``` by specifying four settings
 
 ### Processing
 Supply chain can be very deeply branched, so it can take a long time to scan the entire tree. For example domain ```openx.com```
-it took 6h to finish the scan.
+it took 6 hours to finish the scan.
 
 !["result of openx.com domain scan"](output.png)
 
