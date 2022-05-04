@@ -32,15 +32,16 @@ the result part. The result part contains suffix which indicates type of output.
 | Suffix | Description                                                                                                    |
 |--------|----------------------------------------------------------------------------------------------------------------|
 | [+]    | Nodes whose ```seller_type``` is set to ```PUBLISHER```. These are **direct sellers**                          |
-| [*]    | Confidential publishers. Their names and/or domain names are confidential. There are **direct sellers** either |
-| [/]    | Nodes whose ```seller_type``` is set to ```INTERMEDIARY``` or ```BOTH``` who are **indirect sellers**.         |
+| [*]    | Confidential publishers. Their names and/or domain names are confidential. These are **direct sellers** either |
+| [/]    | Nodes whose ```seller_type``` is set to ```INTERMEDIARY``` or ```BOTH``` are **indirect sellers**.         |
 | [!]    | Invalid nodes. Requirements for valid nodes are described in sellers.json file documentation below.            |
 
 > Indirect seller's line provides depth level of children nodes in the supply chain but **not current node's depth**. 
 > 
 > For example in line ```[/] google.com [depth=3]``` the depth of 3 describes the depth of the nodes in google's sellers.json file.
 > So google.com has depth=2. Given depth is expected value and is compared with max_depth only if sellers.json contains at least
-> one child node.
+> one child node. It is best practice to use the depth level returned after the end of the program. 
+> The values displayed during the processing are illustrative.
 
 ### Documentation
 The script is based on the official IAB Tech Lab documentation 
