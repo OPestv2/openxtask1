@@ -34,18 +34,20 @@ def create_urls(dn):
     return f"http://{dn}/sellers.json", f"https://{dn}/sellers.json"
 
 
-def create_indent(depth):
+def create_indent(depth, size=INDENT_SIZE):
     """
     Method creates string that will be used as indent in print functions. Length of indent depends on depth level.
 
     :param depth: Depth of recursion
     :type depth: int
+    :param size: Optional parameter used to allow specifying indent size in testing
+    :type size: int
     :return: Indent
     :rtype: str
     """
     # distance unit is a single string made of INDENT_SIZE amount of spaces
     dist_unit = "|"
-    for iter in range(INDENT_SIZE):
+    for iter in range(size):
         dist_unit += " "
 
     # basic depth indent
@@ -60,7 +62,7 @@ def create_indent(depth):
     return {"bsc": bsc, "ext": ext}
 
 
-def request_data(domain, ind):
+def request_data(domain, ind, timeout=TIMEOUT):
     """
     Method is used to retrieve json data from sellers.json file in given domain.
     It also validates the response.
@@ -69,6 +71,8 @@ def request_data(domain, ind):
     :type domain: str
     :param ind: indent
     :type ind: dict
+    :param timeout: Optional parameter used to allow specifying timeout in testing
+    :type timeout: int
     :return: depending on that whether error occurred or not returned
              is error message with True flag or json with False flag.
              Flag indicates whether returned value is error message or json
@@ -80,11 +84,11 @@ def request_data(domain, ind):
 
     try:
         # retrieve json using https protocol first
-        response = requests.get(https, timeout=TIMEOUT)
+        response = requests.get(https, timeout=timeout)
 
         # file not found using https, try http
         if response.status_code in ERROR:
-            response = requests.get(http, timeout=TIMEOUT)
+            response = requests.get(http, timeout=timeout)
 
     except:
         return ind["ext"] + "[!] Could not connect to '%s' domain" % domain, True
@@ -150,7 +154,7 @@ def extract_clear_domain_name(domain):
     if domain.startswith("www."): domain = domain[4:]
 
     # remove directory path from the end of domain name
-    res = re.search("\.[a-z]+/.", domain)
+    res = re.search("\.[a-z]+/.?", domain)
     if res is not None:
         # example 'domain': google.com/in
         # find start of regex and cut the base name ('google')
@@ -251,7 +255,6 @@ if __name__ == '__main__':
     print(f"Script started at %s" % datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"))
     # initial domain
     root_dn = "openx.com"
-    # root_dn = "adweb.gr"
     # initial depth
     root_depth = 0
     thread = threading.Thread(target=print_supply_chain, args=(root_dn, root_depth, []))
@@ -262,8 +265,7 @@ if __name__ == '__main__':
         print("[Ctrl+C]")
     finally:
         print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-        seconds = '{0:.3g}'.format(time.time() - start_time)
         print(f"Script finished at %s and executed in %s seconds" %
-              (datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"), seconds))
+              (datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"), '{0:.3g}'.format(time.time() - start_time)))
         print("Max depth measured: %d" % globals()["max_depth"])
         print("Quit")
