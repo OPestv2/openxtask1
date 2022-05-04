@@ -1,8 +1,6 @@
 import json
 import unittest
-
 import requests
-
 import main
 
 
@@ -33,7 +31,6 @@ class Tests(unittest.TestCase):
         expected_output = 'google.com'
 
         for val in input_values:
-            print(main.extract_clear_domain_name(val))
             self.assertEqual(main.extract_clear_domain_name(val), expected_output)
 
     def test_creating_http_and_https_urls(self):
@@ -61,11 +58,6 @@ class Tests(unittest.TestCase):
             self.assertEqual(len(ind["bsc"]), depth * (indent_size+1))
             self.assertEqual(len(ind["ext"]), (depth + 1) * (indent_size + 1))
 
-    """
-    All domain names in the tests below were valid/invalid at the time of 
-    creating this script
-    """
-
     def test_response(self):
         """
         Check no error response is returned
@@ -82,6 +74,7 @@ class Tests(unittest.TestCase):
         Request to used domains should return incorrect code responses
         These codes are i.a. [403, 404, 406, 410, 530]
         """
+
         domains = ["newsweek.com",          # 403
                    "google.com",            # 404
                    "snigelweb.com",         # 406
@@ -121,6 +114,7 @@ class Tests(unittest.TestCase):
         """
         Check if method returns error when domain's server is unreachable
         """
+
         domain = "townsquaremedia.com"
         http, https = main.create_urls(domain)
 
@@ -133,15 +127,44 @@ class Tests(unittest.TestCase):
         response, err = main.request_data(domain, self.ind)
         self.assertEqual(err, not_connected)
 
-    def check_error_on_invalid_entity_in_sellers_json(self):
-        pass
+    def check_error_on_no_sellers_key_in_sellers_json(self):
+        """
+        Check if method returns error when sellers key is missing
+        ( Entity is identified as INTERMEDIARY or BOTH but 'sellers' key has not been
+        found in sellers.json file in the domain )
+        """
 
+        domain = "sindonews.com"
+        http, https = main.create_urls(domain)
 
+        not_connected = False
+        try:
+            real_response = requests.get(https)["sellers"]
+        except:
+            not_connected = True
 
+        response, err = main.request_data(domain, self.ind)
+        self.assertEqual(err, not_connected)
 
+    def check_error_after_redirect_to_other_website(self):
+        """
+        Check if redirection to other domain is detected
+        """
 
+        domain = "liftablemedia.com"
+        http, https = main.create_urls(domain)
+        bad_redirect = False
 
+        real_response = requests.get(https)
+        for history_response in real_response.history:
+            history_domain = main.extract_clear_domain_name(history_response.url)
 
+            if domain != history_domain:
+                bad_redirect = True
+                break
+
+        response, err = main.request_data(domain, self.ind)
+        self.assertEqual(err, bad_redirect)
 
 
 if __name__ == "__main__":
