@@ -168,6 +168,14 @@ def extract_clear_domain_name(domain):
 
 
 def print_supply_chain(current_domain, depth, domain_stack):
+    """
+    Method is recursively searching nested sellers in nodes with 'seller_type' set to INTERMEDIARY or BOTH.
+    
+    :param current_domain: currently checked domain
+    :param depth: recursion depth
+    :param domain_stack: domains chain that leads to this recursion depth where the current domain is 
+    :return: None
+    """
     # append current domain to domains stack
     domain_stack.append(current_domain)
 
@@ -266,6 +274,6 @@ if __name__ == '__main__':
     finally:
         print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         print(f"Script finished at %s and executed in %s seconds" %
-              (datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"), '{0:.3g}'.format(time.time() - start_time)))
+              (datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"), '{0:.3f}'.format(time.time() - start_time)))
         print("Max depth measured: %d" % globals()["max_depth"])
         print("Quit")
