@@ -238,9 +238,9 @@ def print_supply_chain(current_domain, depth, domain_stack):
     # if node is valid (at this point it is already checked) and contains any child
     # increase depth and if is greater than measured so far update max_depth global variable
     if nodes >= 0:
-        depth += 1
         if depth + 1 > globals()["max_depth"]:
             globals()["max_depth"] = depth + 1
+        depth += 1
 
     # process non_publishers
     if len(non_publishers) > 0 or confidential_publishers > 0:
