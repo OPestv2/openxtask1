@@ -7,8 +7,8 @@ import time
 import requests
 
 # constants
-SUCCESS = [200]
-ERROR = [404]
+SUCCESS = "200"
+ERROR = "404"
 # request timeout
 TIMEOUT = 0.75
 # max redirections in the root domain scope allowed
@@ -94,12 +94,12 @@ def request_data(domain, ind, timeout=TIMEOUT):
         return ind["ext"] + "[!] Could not connect to '%s' domain" % domain, True
 
     # file still not found
-    if response.status_code in ERROR:
+    if response.status_code == ERROR:
         return (ind["ext"] + "[!] Sellers.json file not found in '%s' domain" %
                 domain), True
 
     # unexpected response code, expected is 200
-    elif response.status_code not in SUCCESS:
+    elif response.status_code != SUCCESS:
         return (ind["ext"] + "[!] Unexpected response code from server in '%s' domain"
                 % domain), True
 
@@ -170,10 +170,10 @@ def extract_clear_domain_name(domain):
 def print_supply_chain(current_domain, depth, domain_stack):
     """
     Method is recursively searching nested sellers in nodes with 'seller_type' set to INTERMEDIARY or BOTH.
-    
+
     :param current_domain: currently checked domain
     :param depth: recursion depth
-    :param domain_stack: domains chain that leads to this recursion depth where the current domain is 
+    :param domain_stack: domains chain that leads to this recursion depth where the current domain is
     :return: None
     """
     # append current domain to domains stack
@@ -186,6 +186,7 @@ def print_supply_chain(current_domain, depth, domain_stack):
     print(ind["bsc"] + f"[/] {current_domain} [depth={depth + 1}]")
 
     # lists contain distinct domain names of publishers and non-publishers
+    nodes = 0
     non_publishers = []
     # number of publishers with unknown domain names
     confidential_publishers = 0
@@ -225,6 +226,7 @@ def print_supply_chain(current_domain, depth, domain_stack):
                 # save intermediaries and both distinctly
                 elif seller["seller_type"] != "PUBLISHER" and domain not in non_publishers:
                     non_publishers.append(domain)
+            nodes += 1
         except:
             invalid_entities += 1
 
@@ -233,13 +235,15 @@ def print_supply_chain(current_domain, depth, domain_stack):
     if invalid_entities > 0 and VERBOSE:
         print(ind["ext"] + f"[!] {invalid_entities} invalid seller entities found")
 
-    # if node is valid (at this point it is already checked) and contains any child or confidential publishers
+    # if node is valid (at this point it is already checked) and contains any child
     # increase depth and if is greater than measured so far update max_depth global variable
-    if len(non_publishers) > 0 or confidential_publishers > 0:
+    if nodes >= 0:
         depth += 1
         if depth + 1 > globals()["max_depth"]:
             globals()["max_depth"] = depth + 1
 
+    # process non_publishers
+    if len(non_publishers) > 0 or confidential_publishers > 0:
         # show number of no-name (confidential) publishers
         if confidential_publishers > 0:
             print(ind["ext"] + "[*] %d confidential (domain names are unknown) publishers found"
