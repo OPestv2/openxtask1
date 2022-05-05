@@ -7,8 +7,8 @@ import time
 import requests
 
 # constants
-SUCCESS = "200"
-ERROR = "404"
+SUCCESS = 200
+ERROR = 404
 # request timeout
 TIMEOUT = 0.75
 # max redirections in the root domain scope allowed
@@ -87,7 +87,7 @@ def request_data(domain, ind, timeout=TIMEOUT):
         response = requests.get(https, timeout=timeout)
 
         # file not found using https, try http
-        if response.status_code in ERROR:
+        if response.status_code == ERROR:
             response = requests.get(http, timeout=timeout)
 
     except:
