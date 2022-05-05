@@ -10,7 +10,7 @@ class Tests(unittest.TestCase):
         self.ind = main.create_indent(0, 2)
         self.timeout = 0.75
 
-    def test_clearing_domain_name(self, ):
+    def test_clearing_domain_name(self):
         """
         Check whether method removes prefixes and directory paths like:
             http://
@@ -63,8 +63,7 @@ class Tests(unittest.TestCase):
         Check no error response is returned
         """
 
-        domain = "yeahmobi.com"
-
+        domain = "openx.com"
         response, err = main.request_data(domain, self.ind, self.timeout)
         self.assertEqual(err, False)
 
@@ -84,8 +83,8 @@ class Tests(unittest.TestCase):
         for domain in domains:
             http, https = main.create_urls(domain)
 
-            real_response = requests.get(https).status_code
-            response, err = main.request_data(domain, self.ind)
+            real_response = requests.get(https, timeout=self.timeout).status_code
+            response, err = main.request_data(domain, self.ind, self.timeout)
 
             # to be sure check if the given domains have not become available
             if real_response != "200":
@@ -103,11 +102,11 @@ class Tests(unittest.TestCase):
 
         is_not_json = False
         try:
-            real_response = requests.get(https).json()
+            real_response = requests.get(https, timeout=self.timeout).json()
         except json.JSONDecodeError:
             is_not_json = True
 
-        response, err = main.request_data(domain, self.ind)
+        response, err = main.request_data(domain, self.ind, self.timeout)
         self.assertEqual(err, is_not_json)
 
     def check_error_if_could_not_connect_to_server(self):
@@ -120,11 +119,11 @@ class Tests(unittest.TestCase):
 
         not_connected = False
         try:
-            real_response = requests.get(https)
+            real_response = requests.get(https, timeout=self.timeout)
         except:
             not_connected = True
 
-        response, err = main.request_data(domain, self.ind)
+        response, err = main.request_data(domain, self.ind, self.timeout)
         self.assertEqual(err, not_connected)
 
     def check_error_on_no_sellers_key_in_sellers_json(self):
@@ -139,11 +138,11 @@ class Tests(unittest.TestCase):
 
         not_connected = False
         try:
-            real_response = requests.get(https)["sellers"]
+            real_response = requests.get(https, timeout=self.timeout)["sellers"]
         except:
             not_connected = True
 
-        response, err = main.request_data(domain, self.ind)
+        response, err = main.request_data(domain, self.ind, self.timeout)
         self.assertEqual(err, not_connected)
 
     def check_error_after_redirect_to_other_website(self):
@@ -155,7 +154,7 @@ class Tests(unittest.TestCase):
         http, https = main.create_urls(domain)
         bad_redirect = False
 
-        real_response = requests.get(https)
+        real_response = requests.get(https, timeout=self.timeout)
         for history_response in real_response.history:
             history_domain = main.extract_clear_domain_name(history_response.url)
 
@@ -163,7 +162,7 @@ class Tests(unittest.TestCase):
                 bad_redirect = True
                 break
 
-        response, err = main.request_data(domain, self.ind)
+        response, err = main.request_data(domain, self.ind, self.timeout)
         self.assertEqual(err, bad_redirect)
 
 
